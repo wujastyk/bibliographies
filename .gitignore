@@ -274,3 +274,27 @@ TSWLatexianTemp*
 
 # Makeindex log files
 *.lpz
+
+# DW stuff
+PDFs to which Jabref added XMP data 2021-05.txt
+Pollock-complete-bibliography.bib
+Schreiner-yogabibliography1903i.enl
+bak/
+base/
+bib temp files.zip
+biblatex/
+biblio4-utf8.bib.sav.tmp
+bibtool.rsc
+brickbuilders.bib
+de-string.sed
+field-list-intellectual-and-cultural.old
+hssa/
+jabref preferences.xml
+list-of-archive-urls.txt
+meulenbeld abim/
+other bib files.zip
+rcs/
+referencer/
+search.csv
+search.sed
+strings.txt
