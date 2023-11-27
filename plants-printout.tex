@@ -1,0 +1,38 @@
+% !TeX encoding = UTF-8
+% !TeX spellcheck = en_GB
+\documentclass[12pt,a4paper]{article}
+\usepackage{xelatex-generic,
+    xelatex-biblatex,
+    xelatex-glossaries,
+    hyperref}
+    
+%\addbibresource{biblio4-utf8.bib}
+\addbibresource{/home/dom/Dropbox/Xdrive/projects/Susruta project/Saktumiva 
+files/translation/incremental_SS_Translation.bib}
+
+\title{Full contents of plants.bib}
+\author{Dominik Wujastyk}
+\date{\texttt{Draft of \today }}
+
+%                                    
+\begin{document}
+    \begin{footnotesize}
+    \maketitle
+
+\printshorthands[heading=biblistintoc,
+title=Materia Medica Reference Works,
+keyword=botanical]
+
+\renewcommand{\glossaryname}{Materia Medica}
+% If you want to print all the glossary entries, 
+% use the selection=all option in \GlsXtrLoadResources (see 
+% xelatex-glossaries.sty.
+%
+\printunsrtglossaries % plant names.  iterate over all defined entries 
+%% the setup for the glossaries package is in xelatex-indexing etc.
+%%
+
+
+\end{footnotesize}
+\end{document}
+           
