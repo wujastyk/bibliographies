@@ -1,18 +1,61 @@
 % !TeX encoding = UTF-8
 % !TeX spellcheck = en_GB
-\documentclass[12pt,a4paper]{article}
+\documentclass[12pt]{article}
 \usepackage{xelatex-generic,
     xelatex-biblatex,
-    xelatex-glossaries,
     hyperref}
+% For documentation, see 
+%https://github.com/wujastyk/xelatex/blob/main/wujastyk-local-documentation.pdf
     
 %\addbibresource{biblio4-utf8.bib}
 \addbibresource{/home/dom/Dropbox/Xdrive/projects/Susruta project/Saktumiva 
 files/translation/incremental_SS_Translation.bib}
 
-\title{Full contents of plants.bib}
+% Here are the macros of xelatex-glossaries.sty, tweaked for 
+% the current purpose (mainly, selection=all).
+% For documentation, see 
+%https://github.com/wujastyk/xelatex/blob/main/wujastyk-local-documentation.pdf
+\usepackage[record={only}, % see bib2gls manual, option summary
+nostyles, 								% don't load things you don't need
+style=bookindex, 				  % load this style
+stylemods=bookindex, 		  % load the updates for this style
+postpunc={\,:\ },					% after description, before page numbers
+automake,							  % run bib2gls automatically; bib2gls manual
+section]{glossaries-extra}
+\newglossary*{plants}{Flora}  
+\newglossary*{animals}{Fauna}
+\renewcommand*{\glsxtrbookindexname}[1]{%
+    \glossentryname{#1}%
+    \space (\emph{\the\glslabeltok{#1}})%
+    \ifglshasdesc{#1}{\space \glossentrydesc{#1}\glspostdescription}{}%
+}
+\renewcommand*\glsxtrbookindexprelocation[1]{\empty }
+\setglossarypreamble{\emph{\footnotesize 
+        Numbers after the final colon refer to 
+        pages in this book.}\bigskip}  
+\GlsXtrLoadResources[
+src={~/Dropbox/localtexmf/bibtex/bib/plants},
+type=plants,
+selection=all,  % select this if you want all the contents of the database
+field-aliases={identifier=citationkey},
+sort={en-GB},
+]
+\GlsXtrLoadResources[
+src={~/Dropbox/localtexmf/bibtex/bib/animals},
+type=animals,
+selection=all,  % select this if you want all the contents of the database
+field-aliases={identifier=citationkey},
+sort={en-GB},
+]
+% end of macros from xelatex-glossaries.sty
+
+\title{Full contents of plants.bib and animals.bib}
 \author{Dominik Wujastyk}
 \date{\texttt{Draft of \today }}
+
+% Some macros I use that were originally written elsewhere
+\newcommand{\Su}[2]{#1 \parencite[#2]{vulgate}}
+\newcommand{\Ca}[2]{#1 \parencite[#2]{cara-trikamji3}}
 
 %                                    
 \begin{document}
@@ -23,12 +66,12 @@ files/translation/incremental_SS_Translation.bib}
 title=Materia Medica Reference Works,
 keyword=botanical]
 
-\renewcommand{\glossaryname}{Materia Medica}
 % If you want to print all the glossary entries, 
 % use the selection=all option in \GlsXtrLoadResources (see 
 % xelatex-glossaries.sty.
 %
-\printunsrtglossaries % plant names.  iterate over all defined entries 
+\printunsrtglossary[type=plants]% Flora.  
+\printunsrtglossary[type=animals] % Fauna.  
 %% the setup for the glossaries package is in xelatex-indexing etc.
 %%
 
