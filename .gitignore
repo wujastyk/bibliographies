@@ -307,3 +307,11 @@ plants-printout-1.glstex
 biblio4-utf8 (Dominik Wujastyk's conflicted copy 2025-01-02).bib
 biblio4-utf8 (Dominik Wujastyk's conflicted copy 2025-01-14).bib
 *.un~
+biblio4-utf8.zip
+find-duplicates/biblio4-utf8-2025-07-31.bib
+find-duplicates/citationkey-dups.txt
+find-duplicates/citationkey-dups2.txt
+find-duplicates/finddupls.pl
+find-duplicates/finddupls.pl~
+find-duplicates/sorted_citation-keys.txt
+find-duplicates/sorted_titles.txt
