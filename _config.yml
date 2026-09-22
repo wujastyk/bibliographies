@@ -1,0 +1,23 @@
+title: Dominik Wujastyk's Bibliographies
+description: >-
+  A searchable index of Dominik Wujastyk's personal scholarly bibliography
+  in Sanskrit studies, Āyurveda, and South Asian textual history, generated
+  from the BibLaTeX files in this repository.
+author: Dominik Wujastyk
+url: "" # fill in once GitHub Pages is enabled, e.g. https://wujastyk.github.io
+baseurl: "/bibliographies" # repo name; change if the repo is renamed
+
+# Only the plain HTML/CSS/JS + Markdown pages below are built; the .bib
+# source files and build script are excluded from the generated site.
+exclude:
+  - "*.bib"
+  - "scripts/"
+  - "requirements.txt"
+  - "README.md"
+  - "SETUP.md"
+  - "Gemfile"
+  - "Gemfile.lock"
+  - "plants-printout.*"
+
+markdown: kramdown
+plugins: []

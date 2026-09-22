@@ -1,0 +1,94 @@
+---
+layout: default
+title: Search
+---
+<section class="app" id="app" data-loading="true">
+
+  <div class="app__intro">
+    <p>{{ site.description }} <span id="entry-count-blurb"></span></p>
+  </div>
+
+  <form class="controls" id="controls" autocomplete="off">
+    <div class="controls__search">
+      <label for="q" class="sr-only">Search</label>
+      <input type="text" id="q" name="q" placeholder="Search author, title, year, keyword…" />
+      <div class="controls__search-mode">
+        <label><input type="radio" name="mode" value="plain" checked> plain</label>
+        <label><input type="radio" name="mode" value="regex"> regex</label>
+      </div>
+    </div>
+
+    <div class="controls__filters">
+      <label class="filter">
+        <span>Collection</span>
+        <select id="f-collection">
+          <option value="">All</option>
+        </select>
+      </label>
+      <label class="filter">
+        <span>Type</span>
+        <select id="f-type">
+          <option value="">All</option>
+        </select>
+      </label>
+      <label class="filter">
+        <span>Language</span>
+        <select id="f-lang">
+          <option value="">All</option>
+        </select>
+      </label>
+      <label class="filter filter--range">
+        <span>Year</span>
+        <span class="filter__range">
+          <input type="number" id="f-year-from" placeholder="from" inputmode="numeric">
+          <span aria-hidden="true">–</span>
+          <input type="number" id="f-year-to" placeholder="to" inputmode="numeric">
+        </span>
+      </label>
+      <label class="filter">
+        <span>Sort by</span>
+        <select id="f-sort">
+          <option value="author">Author</option>
+          <option value="year-desc">Year, newest first</option>
+          <option value="year-asc">Year, oldest first</option>
+          <option value="title">Title</option>
+        </select>
+      </label>
+      <button type="button" id="f-reset" class="btn btn--ghost">Reset filters</button>
+    </div>
+  </form>
+
+  <div class="results-meta">
+    <span id="results-count" aria-live="polite"></span>
+    <span id="loading-msg">Loading bibliography…</span>
+  </div>
+
+  <ol class="results" id="results" aria-label="Search results"></ol>
+
+  <nav class="pager" id="pager" aria-label="Results pages"></nav>
+
+  <template id="entry-template">
+    <li class="entry" tabindex="-1">
+      <div class="entry__row">
+        <button type="button" class="entry__toggle" aria-expanded="false">
+          <span class="entry__type"></span>
+          <span class="entry__citation"></span>
+        </button>
+      </div>
+      <div class="entry__detail" hidden>
+        <dl class="entry__fields"></dl>
+        <div class="entry__keywords"></div>
+        <div class="entry__actions">
+          <button type="button" class="btn btn--small btn-copy-citation">Copy citation</button>
+          <button type="button" class="btn btn--small btn-copy-bibtex">Copy BibTeX</button>
+          <a class="btn btn--small entry__link" target="_blank" rel="noopener" hidden>View online ↗</a>
+          <a class="btn btn--small entry__permalink" hidden>Permalink</a>
+        </div>
+        <pre class="entry__bibtex" hidden></pre>
+      </div>
+    </li>
+  </template>
+
+</section>
+
+<script src="{{ '/assets/js/app.js' | relative_url }}" defer></script>

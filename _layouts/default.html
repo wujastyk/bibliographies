@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% if page.title %}{{ page.title }} · {% endif %}{{ site.title }}</title>
+<meta name="description" content="{{ site.description }}">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.85em%22 font-size=%2290%22>&#x0905;</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gentium+Plus:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
+</head>
+<body>
+<header class="site-header">
+  <div class="site-header__inner">
+    <a class="site-header__title" href="{{ '/' | relative_url }}">Wujastyk Bibliographies</a>
+    <nav class="site-header__nav">
+      <a href="{{ '/' | relative_url }}"{% if page.url == '/' %} class="is-active"{% endif %}>Search</a>
+      <a href="{{ '/about/' | relative_url }}"{% if page.url == '/about/' %} class="is-active"{% endif %}>About</a>
+      <a href="https://github.com/wujastyk/bibliographies" target="_blank" rel="noopener">Source .bib files</a>
+    </nav>
+  </div>
+</header>
+<main>
+{{ content }}
+</main>
+<footer class="site-footer">
+  <p>Bibliography data maintained by Dominik Wujastyk in <a href="https://github.com/wujastyk/bibliographies" target="_blank" rel="noopener">BibLaTeX</a>. This index is generated automatically from that data &mdash; see the <a href="{{ '/about/' | relative_url }}">About</a> page.</p>
+</footer>
+</body>
+</html>
