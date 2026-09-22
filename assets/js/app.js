@@ -1,5 +1,14 @@
+---
+---
 (function () {
   "use strict";
+
+  // Jekyll processes this file as a Liquid template (see the empty front
+  // matter above) purely so this next line can inject the build time --
+  // used below to cache-bust the bibliography.json fetch. Every push
+  // regenerates that JSON, but browsers that already have a copy won't
+  // know to re-fetch it unless the URL itself changes.
+  var BUILD_VERSION = "{{ site.time | date: '%s' }}";
 
   var PAGE_SIZE = 40;
 
@@ -64,12 +73,13 @@
   function resolveDataUrl() {
     // index.html is served from the site root (respecting baseurl),
     // so a relative path from the page works whether the site is
-    // hosted at the domain root or under /bibliographies/.
+    // hosted at the domain root or under /bibliographies/. The "?v="
+    // suffix is the build-time cache-buster described above.
     var script = document.currentScript || $all("script[src*='app.js']").pop();
-    if (script) {
-      return script.src.replace(/assets\/js\/app\.js.*$/, "assets/data/bibliography.json");
-    }
-    return "assets/data/bibliography.json";
+    var base = script
+      ? script.src.replace(/assets\/js\/app\.js.*$/, "assets/data/bibliography.json")
+      : "assets/data/bibliography.json";
+    return base + "?v=" + encodeURIComponent(BUILD_VERSION);
   }
 
   function onDataLoaded(records) {
