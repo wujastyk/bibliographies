@@ -30,7 +30,7 @@ ROOT = Path(__file__).resolve().parent.parent
 SOURCES = [
     ("biblio4-utf8.bib", "main", "Main bibliography"),
     ("mbh-vols.bib", "mahabhasya-volumes", "Patañjali's Mahābhāṣya (Joshi & Roodbergen volumes)"),
-     ("plants.bib", "plant-database", "Glossary of Indian Plant Names"),
+#     ("plants.bib", "plant-database", "Glossary of Indian Plant Names"),
 ]
 
 # Fields that are personal working notes, local file paths, or otherwise
