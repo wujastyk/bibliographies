@@ -32,12 +32,20 @@ SOURCES = [
     ("mbh-vols.bib", "mahabhasya-volumes", "Patañjali's Mahābhāṣya (Joshi & Roodbergen volumes)"),
 ]
 
+# Glossary databases (bib2gls/glossaries-extra format: @Entry with Name +
+# Description). Handled separately from the bibliography -- see glossary.py.
+GLOSSARIES = [
+    ("plants.bib", "plants", "Flora (plants.bib)", "Plant"),
+    ("animals.bib", "animals", "Fauna (animals.bib)", "Animal"),
+    ("minerals.bib", "minerals", "Minerals (minerals.bib)", "Mineral"),
+]
+
 # Fields that are personal working notes, local file paths, or otherwise
 # not meant for public display. Dropped from both the JSON record and the
 # cleaned BibTeX text shown in the "Copy BibTeX" box.
 PRIVATE_FIELDS = {
     "file", "owner", "creationdate", "modificationdate",
-    "annotation", "annote", "source", "shorthand", "refid", "size",
+    "annotation", "annote", "source", "refid", "size",
 }
 
 # Fields that are just bookkeeping duplicates of the entry key or are too
@@ -389,6 +397,20 @@ def build():
             # compute author_display/author_short/author_sort above; the
             # site's search/display code works from those, so drop the
             # structured list here to keep the shipped JSON smaller.
+            # Short label used when glossary descriptions cite this work:
+            # the BibLaTeX shorthand if there is one (e.g. "GVDB"), else
+            # "Family Year", as biblatex's author-year styles would print it.
+            shorthand = get(fd, "shorthand", "Shorthand")
+            if shorthand:
+                rec["cite_label"] = shorthand
+            else:
+                people = author_people or editor_people
+                fam = people[0]["family"] if people else rec["title"][:30]
+                if len(people) == 2:
+                    fam += " and " + people[1]["family"]
+                elif len(people) > 2:
+                    fam += " et al."
+                rec["cite_label"] = f"{fam} {year_display}".strip()
             del rec["author_people"]
             all_records.append(rec)
             count += 1
@@ -399,6 +421,12 @@ def build():
 
 def main():
     records, stats = build()
+    from glossary import build_glossaries
+    for r in records:
+        r["collection_label"] = next((lbl for f, t, lbl in SOURCES if t == r["collection"]), r["collection"])
+    gl_records, gl_stats = build_glossaries(ROOT, GLOSSARIES, records)
+    records += gl_records
+    stats += gl_stats
     out_path = ROOT / "assets" / "data" / "bibliography.json"
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(records, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")

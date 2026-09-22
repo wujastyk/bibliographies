@@ -28,16 +28,25 @@ science in South Asia.
   to `main`, so the site always reflects the current state of the `.bib`
   files.
 
-## What's *not* included
+## Glossaries of plants, animals and minerals
 
-Three further files in the repository — `plants.bib`, `animals.bib`, and
-`minerals.bib` — are not bibliographic references at all: they are
-glossary databases of Sanskrit plant, animal, and mineral names, built
-for use with LaTeX's `glossaries-extra` package (see the repository's
-own README). They're left out of this search index, which covers actual
-publications.
+The index also includes three glossary databases from the repository —
+`plants.bib`, `animals.bib` and `minerals.bib` — which record Sanskrit
+names of flora, fauna and minerals for use with LaTeX's
+`glossaries-extra` package. Each is shown as English name, Sanskrit name
+and description. Citations inside a description link to the cited work
+in the bibliography (where it is present there), and cross-references
+link to the other glossary entry. Use the *Collection* or *Type* filter
+to see only these.
 
-A few fields present in the source `.bib` file are also deliberately
+## Searching
+
+Plain search ignores diacritics, so `kanda` finds *kāṇḍa* and `susruta`
+finds *Suśruta*. Regex mode matches the text exactly as written.
+
+## What's left out
+
+A few fields present in the source `.bib` files are deliberately
 left out of both the search index and the "Copy BibTeX" text shown here:
 Zotero's `file` and `owner` fields (local file-system paths), the
 `creationdate`/`modificationdate` bookkeeping fields, and the

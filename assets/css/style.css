@@ -388,3 +388,46 @@ main code {
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
 }
+
+/* --- glossary entries (plants / animals / minerals) --- */
+
+.entry__gloss {
+  display: flex;
+  gap: 0.75rem;
+  align-items: baseline;
+  flex: 1;
+  padding: 0.7rem 0.15rem;
+}
+.gl-text {
+  font-family: var(--serif);
+  font-size: 1.02rem;
+  line-height: 1.55;
+}
+.gl-en { font-weight: 700; }
+.gl-skt { font-style: italic; }
+.gl-en + .gl-skt::before { content: "("; font-style: normal; }
+.gl-en + .gl-skt::after { content: ")"; font-style: normal; }
+.gl-sep { color: var(--ink-faint); }
+.gl-text mark { background: #f6d76b; color: inherit; padding: 0 0.05em; }
+.gl-desc a.cite,
+.gl-desc a.gls {
+  color: var(--link);
+  text-decoration: none;
+  border-bottom: 1px dotted var(--link);
+}
+.gl-desc a.cite:hover,
+.gl-desc a.gls:hover { color: var(--rubric); border-bottom-color: var(--rubric); }
+.entry__more {
+  flex: 0 0 auto;
+  align-self: flex-start;
+  margin-top: 0.8rem;
+  font-family: var(--sans);
+  font-size: 0.7rem;
+  background: none;
+  border: 1px solid var(--rule);
+  color: var(--ink-faint);
+  padding: 0.1rem 0.45rem;
+  border-radius: 2px;
+  cursor: pointer;
+}
+.entry__more:hover { color: var(--rubric); border-color: var(--rubric); }

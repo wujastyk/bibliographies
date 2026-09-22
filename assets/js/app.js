@@ -85,6 +85,7 @@
   function onDataLoaded(records) {
     records.forEach(function (r) {
       r._s = buildSearchString(r);
+      r._f = fold(r._s);
     });
     state.all = records;
     els.app.dataset.loading = "false";
@@ -100,7 +101,13 @@
       r.author_display, r.editor_display, r.translator_display, r.title,
       r.subtitle, r.container, r.year_display, r.publisher, r.location,
       (r.keywords || []).join(" "), r.series, r.note, r.id, r.language,
+      r.sanskrit, r.english, r.description_text,
     ].join(" ").toLowerCase();
+  }
+
+  // Diacritic-insensitive form used by plain search: "kanda" finds "kāṇḍa".
+  function fold(s) {
+    return s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
   }
 
   // ---- facets -------------------------------------------------------
@@ -108,6 +115,7 @@
   function populateFacets(records) {
     var byCollection = {}, byType = {}, byLang = {};
     records.forEach(function (r) {
+      collectionLabels[r.collection] = r.collection_label || r.collection;
       byCollection[r.collection] = (byCollection[r.collection] || 0) + 1;
       byType[r.type_label] = (byType[r.type_label] || 0) + 1;
       if (r.language) byLang[normalizeLang(r.language)] = (byLang[normalizeLang(r.language)] || 0) + 1;
@@ -118,11 +126,8 @@
     fillSelect(els.fLang, Object.keys(byLang).sort(), byLang, function (l) { return l; });
   }
 
-  function collectionLabel(tag) {
-    if (tag === "main") return "Main bibliography";
-    if (tag === "mahabhasya-volumes") return "Mahābhāṣya volumes";
-    return tag;
-  }
+  var collectionLabels = {};
+  function collectionLabel(tag) { return collectionLabels[tag] || tag; }
 
   function normalizeLang(l) {
     var known = { en: "English", eng: "English", "en-gb": "English", "en-in": "English",
@@ -193,8 +198,8 @@
         return true; // invalid regex-in-progress: don't hide everything
       }
     }
-    var terms = query.toLowerCase().split(/\s+/).filter(Boolean);
-    return terms.every(function (t) { return r._s.indexOf(t) !== -1; });
+    var terms = fold(query).split(/\s+/).filter(Boolean);
+    return terms.every(function (t) { return r._f.indexOf(t) !== -1; });
   }
 
   function runSearch() {
@@ -263,9 +268,34 @@
     node.dataset.id = r.id;
 
     node.querySelector(".entry__type").textContent = r.type_label;
-    node.querySelector(".entry__citation").innerHTML = highlight(r.citation, state.query, state.mode);
-
     var toggle = node.querySelector(".entry__toggle");
+
+    if (r.type === "glossary") {
+      // Glossary rows show English name, Sanskrit name and description in
+      // full. The description contains links (citations, cross-references),
+      // which can't live inside the toggle <button>, so the row becomes a
+      // plain block and a small "details" button opens the BibTeX panel.
+      var row = node.querySelector(".entry__row");
+      var body = document.createElement("div");
+      body.className = "entry__gloss";
+      var head = r.english
+        ? '<span class="gl-en">' + highlight(r.english, state.query, state.mode) + '</span> ' +
+          '<span class="gl-skt">' + highlight(r.sanskrit, state.query, state.mode) + '</span>'
+        : '<span class="gl-skt">' + highlight(r.sanskrit, state.query, state.mode) + '</span>';
+      body.innerHTML = '<span class="entry__type"></span><span class="gl-text">' + head +
+        (r.description_html ? '<span class="gl-sep"> — </span><span class="gl-desc">' + r.description_html + '</span>' : '') +
+        '</span>';
+      body.querySelector(".entry__type").textContent = r.type_label;
+      toggle.className = "entry__more";
+      toggle.innerHTML = "";
+      toggle.textContent = "details";
+      toggle.setAttribute("aria-label", "Show BibTeX and permalink for " + r.sanskrit);
+      row.insertBefore(body, toggle);
+      toggle.addEventListener("click", function () { toggleDetail(node, r); });
+      return node;
+    }
+
+    node.querySelector(".entry__citation").innerHTML = highlight(r.citation, state.query, state.mode);
     toggle.addEventListener("click", function () { toggleDetail(node, r); });
 
     return node;
@@ -273,7 +303,7 @@
 
   function toggleDetail(node, r) {
     var detail = node.querySelector(".entry__detail");
-    var toggle = node.querySelector(".entry__toggle");
+    var toggle = node.querySelector(".entry__toggle, .entry__more");
     var open = detail.hidden;
     detail.hidden = !open;
     toggle.setAttribute("aria-expanded", String(open));
@@ -446,7 +476,7 @@
         node.classList.add("is-highlighted");
         if (typeof node.scrollIntoView === "function") node.scrollIntoView({ block: "center" });
         var r = state.filtered[idx];
-        toggleDetail(node, r);
+        if (r.type !== "glossary") toggleDetail(node, r);
       }
     });
   }
