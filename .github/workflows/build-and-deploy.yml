@@ -27,7 +27,7 @@ jobs:
           python-version: "3.12"
 
       - name: Install Python dependencies
-        run: pip install bibtexparser
+        run: pip install -r requirements.txt
 
       - name: Regenerate assets/data/bibliography.json from the .bib files
         run: python3 scripts/build_bibliography.py

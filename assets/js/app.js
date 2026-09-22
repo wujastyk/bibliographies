@@ -101,7 +101,7 @@
       r.author_display, r.editor_display, r.translator_display, r.title,
       r.subtitle, r.container, r.year_display, r.publisher, r.location,
       (r.keywords || []).join(" "), r.series, r.note, r.id, r.language,
-      r.sanskrit, r.english, r.description_text,
+      r.sanskrit, r.english, r.description_text, r.search_extra,
     ].join(" ").toLowerCase();
   }
 
@@ -319,6 +319,7 @@
     ["number", "Number"], ["pages", "Pages"], ["edition", "Edition"],
     ["publisher", "Publisher"], ["location", "Location"],
     ["isbn", "ISBN"], ["issn", "ISSN"], ["doi", "DOI"],
+    ["url", "URL"], ["ark_url", "ARK"],
     ["language", "Language"], ["note", "Note"], ["comment", "Comment"],
     ["contents", "Contents"],
   ];
@@ -333,7 +334,13 @@
       dt.textContent = label;
       var dd = document.createElement("dd");
       if (key === "contents") dd.className = "is-contents";
-      if (key === "doi") {
+      if (key === "url" || key === "ark_url") {
+        var u = document.createElement("a");
+        u.href = val;
+        u.textContent = val;
+        u.target = "_blank"; u.rel = "noopener";
+        dd.appendChild(u);
+      } else if (key === "doi") {
         var a = document.createElement("a");
         a.href = "https://doi.org/" + encodeURIComponent(val);
         a.textContent = val;
@@ -360,7 +367,7 @@
     });
 
     var linkEl = detail.querySelector(".entry__link");
-    if (r.url) { linkEl.href = r.url; linkEl.hidden = false; }
+    if (r.url || r.ark_url) { linkEl.href = r.url || r.ark_url; linkEl.hidden = false; }
     else if (r.doi) { linkEl.href = "https://doi.org/" + encodeURIComponent(r.doi); linkEl.hidden = false; }
 
     var permaEl = detail.querySelector(".entry__permalink");

@@ -22,6 +22,7 @@ import unicodedata
 from pathlib import Path
 
 import bibtexparser
+from indic_transliteration import sanscript
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -30,7 +31,6 @@ ROOT = Path(__file__).resolve().parent.parent
 SOURCES = [
     ("biblio4-utf8.bib", "main", "Main bibliography"),
     ("mbh-vols.bib", "mahabhasya-volumes", "Patañjali's Mahābhāṣya (Joshi & Roodbergen volumes)"),
-#     ("plants.bib", "plant-database", "Glossary of Indian Plant Names"),
 ]
 
 # Glossary databases (bib2gls/glossaries-extra format: @Entry with Name +
@@ -109,6 +109,48 @@ def join_loc_pub(location, publisher):
     return ""
 
 
+DEV_RE = re.compile(r"\\dev\s*\{")
+
+
+def find_dev(s):
+    """Yield (start, end, inner) for each \\dev{...} in s, braces balanced."""
+    for m in DEV_RE.finditer(s):
+        depth, j = 1, m.end()
+        while j < len(s) and depth:
+            if s[j] == "\\":
+                j += 2
+                continue
+            depth += {"{": 1, "}": -1}.get(s[j], 0)
+            j += 1
+        yield m.start(), j, s[m.end():j - 1]
+
+
+def to_devanagari(iast):
+    """Transliterate IAST to Devanagari, as the \\dev{} macro does when
+    typeset. Text already in Devanagari is left alone."""
+    if not re.search(r"[A-Za-zĀ-ſḀ-ỿ]", iast):
+        return iast
+    return sanscript.transliterate(iast.lower().replace("--", "–"),
+                                   sanscript.IAST, sanscript.DEVANAGARI)
+
+
+def convert_dev(s):
+    """Replace every \\dev{...} with its Devanagari rendering."""
+    out, pos = [], 0
+    for a, b, inner in find_dev(s):
+        out.append(s[pos:a])
+        out.append(to_devanagari(clean_latex(inner)))
+        pos = b
+    out.append(s[pos:])
+    return "".join(out)
+
+
+def dev_originals(raw):
+    """The romanized text of all \\dev{...} in an entry, kept for searching
+    so that IAST queries still find titles displayed in Devanagari."""
+    return " ".join(clean_latex(inner) for _, _, inner in find_dev(raw))
+
+
 def clean_latex(text):
     """Light-touch cleanup of LaTeX markup for plain-text display.
     Not a full LaTeX parser -- handles the patterns actually present
@@ -118,6 +160,8 @@ def clean_latex(text):
         return text
     s = text
     s = convert_tex_accents(s)
+    if "\\dev" in s:
+        s = convert_dev(s)
     s = TEX_BARE_MACRO_RE.sub("", s)
     s = s.replace("``", "\u201c").replace("''", "\u201d")
     # Repeatedly unwrap \emph{...} etc., innermost first, keeping the text.
@@ -386,6 +430,10 @@ def build():
                 "issn": get(fd, "issn"),
                 "doi": get(fd, "doi"),
                 "url": get(fd, "url"),
+                # ARK identifiers (eprinttype = {ark}, eprint = {ark:/13960/...})
+                # resolve through the n2t.net resolver.
+                "ark_url": ("https://n2t.net/" + get_raw(fd, "eprint").strip())
+                           if get_raw(fd, "eprint").strip().startswith("ark:/") else "",
                 "language": language,
                 "keywords": keywords,
                 "note": get(fd, "note"),
@@ -394,6 +442,7 @@ def build():
             }
             rec["citation"] = render_citation(rec)
             rec["bibtex"] = clean_bibtex(e.raw)
+            rec["search_extra"] = " ".join(dev_originals(f.value) for f in e.fields if f.key.lower() not in PRIVATE_FIELDS).strip()
             # author_people (full structured list) was only needed to
             # compute author_display/author_short/author_sort above; the
             # site's search/display code works from those, so drop the

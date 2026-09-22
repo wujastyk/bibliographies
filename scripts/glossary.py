@@ -21,7 +21,7 @@ import unicodedata
 
 import bibtexparser
 
-from build_bibliography import clean_bibtex, convert_tex_accents
+from build_bibliography import clean_bibtex, clean_latex, convert_tex_accents, dev_originals, to_devanagari, PRIVATE_FIELDS
 
 # Macros from Dominik's own LaTeX setup that appear in the descriptions.
 TEXT_MACROS = {
@@ -31,7 +31,7 @@ TEXT_MACROS = {
     "S": "§", "P": "¶", "ldots": "…", "slash": "/",
 }
 # Macros whose single argument is simply printed (formatting only).
-PASS_THROUGH = {"textnormal", "textbengali", "textgreek", "dev", "textbf", "textsc"}
+PASS_THROUGH = {"textnormal", "textbengali", "textgreek", "textbf", "textsc"}
 ITALIC = {"emph", "textit"}
 DROP = {"ref", "pageref", "label", "index"}
 GLS = {"gls", "egls", "glspl", "Gls", "Glspl", "glsname"}
@@ -134,6 +134,9 @@ class Renderer:
                 elif name in ITALIC:
                     a, i = self._arg(s, i)
                     out.append(f"<i>{self.render(a)}</i>")
+                elif name == "dev":
+                    a, i = self._arg(s, i)
+                    out.append('<span class="deva" lang="sa">' + html.escape(to_devanagari(clean_latex(a))) + '</span>')
                 elif name in PASS_THROUGH:
                     a, i = self._arg(s, i)
                     out.append(self.render(a))
@@ -267,6 +270,7 @@ def build_glossaries(root, sources, bib_records):
                 "year": None, "year_display": "",
                 "citation": f"{key}" + (f" ({show_en})" if show_en else "") + (f": {desc_text}" if desc_text else ""),
                 "bibtex": clean_bibtex(e.raw),
+                "search_extra": " ".join(dev_originals(f.value) for f in e.fields if f.key.lower() not in PRIVATE_FIELDS).strip(),
             }
             records.append(rec)
         stats.append((label, len(entries)))
