@@ -30,6 +30,7 @@ ROOT = Path(__file__).resolve().parent.parent
 SOURCES = [
     ("biblio4-utf8.bib", "main", "Main bibliography"),
     ("mbh-vols.bib", "mahabhasya-volumes", "Patañjali's Mahābhāṣya (Joshi & Roodbergen volumes)"),
+#     ("plants.bib", "plant-database", "Glossary of Indian Plant Names"),
 ]
 
 # Glossary databases (bib2gls/glossaries-extra format: @Entry with Name +
