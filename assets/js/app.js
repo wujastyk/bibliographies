@@ -63,11 +63,17 @@
       .catch(function (err) {
         els.count.textContent = "";
         $("#loading-msg").textContent =
-          "Could not load the bibliography data (" + err.message + "). " +
-          "Try reloading, or check assets/data/bibliography.json exists.";
+          "Could not load the search data (" + err.message + "). " +
+          "Try reloading, or check assets/data/" + dataFile() + " exists.";
       });
 
     bindControls();
+  }
+
+  // Each search page names its data file on the #app element, e.g.
+  // <section id="app" data-source="glossary.json">. Default: bibliography.
+  function dataFile() {
+    return (els.app && els.app.dataset.source) || "bibliography.json";
   }
 
   function resolveDataUrl() {
@@ -77,8 +83,8 @@
     // suffix is the build-time cache-buster described above.
     var script = document.currentScript || $all("script[src*='app.js']").pop();
     var base = script
-      ? script.src.replace(/assets\/js\/app\.js.*$/, "assets/data/bibliography.json")
-      : "assets/data/bibliography.json";
+      ? script.src.replace(/assets\/js\/app\.js.*$/, "assets/data/" + dataFile())
+      : "assets/data/" + dataFile();
     return base + "?v=" + encodeURIComponent(BUILD_VERSION);
   }
 
@@ -86,6 +92,9 @@
     records.forEach(function (r) {
       r._s = buildSearchString(r);
       r._f = fold(r._s);
+      // Sort keys ignore diacritics, so "ācārya" sorts with the a's.
+      r._sa = fold(r.author_sort || "");
+      r._st = fold(r.title || "");
     });
     state.all = records;
     els.app.dataset.loading = "false";
@@ -121,7 +130,7 @@
       if (r.language) byLang[normalizeLang(r.language)] = (byLang[normalizeLang(r.language)] || 0) + 1;
     });
 
-    fillSelect(els.fCollection, Object.keys(byCollection).sort(), byCollection, collectionLabel);
+    fillSelect(els.fCollection, Object.keys(byCollection), byCollection, collectionLabel);
     fillSelect(els.fType, Object.keys(byType).sort(), byType, function (t) { return t; });
     fillSelect(els.fLang, Object.keys(byLang).sort(), byLang, function (l) { return l; });
   }
@@ -137,6 +146,7 @@
   }
 
   function fillSelect(select, keys, counts, labelFn) {
+    if (!select) return;
     keys.forEach(function (k) {
       var opt = document.createElement("option");
       opt.value = k;
@@ -156,10 +166,10 @@
     $all("input[name='mode']").forEach(function (r) {
       r.addEventListener("change", function () { readStateFromForm(); runSearch(); });
     });
-    [els.fCollection, els.fType, els.fLang, els.fSort].forEach(function (el) {
+    [els.fCollection, els.fType, els.fLang, els.fSort].filter(Boolean).forEach(function (el) {
       el.addEventListener("change", function () { readStateFromForm(); runSearch(); });
     });
-    [els.fYearFrom, els.fYearTo].forEach(function (el) {
+    [els.fYearFrom, els.fYearTo].filter(Boolean).forEach(function (el) {
       el.addEventListener("input", function () {
         clearTimeout(debounceTimer);
         debounceTimer = setTimeout(function () { readStateFromForm(); runSearch(); }, 200);
@@ -177,12 +187,13 @@
   function readStateFromForm() {
     state.query = els.q.value.trim();
     state.mode = ($all("input[name='mode']").filter(function (r) { return r.checked; })[0] || {}).value || "plain";
-    state.collection = els.fCollection.value;
-    state.type = els.fType.value;
-    state.lang = els.fLang.value;
-    state.yearFrom = els.fYearFrom.value ? parseInt(els.fYearFrom.value, 10) : null;
-    state.yearTo = els.fYearTo.value ? parseInt(els.fYearTo.value, 10) : null;
-    state.sort = els.fSort.value;
+    function v(el) { return el ? el.value : ""; }
+    state.collection = v(els.fCollection);
+    state.type = v(els.fType);
+    state.lang = v(els.fLang);
+    state.yearFrom = v(els.fYearFrom) ? parseInt(v(els.fYearFrom), 10) : null;
+    state.yearTo = v(els.fYearTo) ? parseInt(v(els.fYearTo), 10) : null;
+    state.sort = v(els.fSort) || "author";
     state.page = 1;
   }
 
@@ -220,11 +231,11 @@
   function sortRecords(list, sort) {
     list.sort(function (a, b) {
       switch (sort) {
-        case "year-desc": return (b.year || -Infinity) - (a.year || -Infinity) || cmp(a.author_sort, b.author_sort);
-        case "year-asc": return (a.year || Infinity) - (b.year || Infinity) || cmp(a.author_sort, b.author_sort);
-        case "title": return cmp(a.title, b.title);
+        case "year-desc": return (b.year || -Infinity) - (a.year || -Infinity) || cmp(a._sa, b._sa);
+        case "year-asc": return (a.year || Infinity) - (b.year || Infinity) || cmp(a._sa, b._sa);
+        case "title": return cmp(a._st, b._st) || cmp(a._sa, b._sa);
         case "author":
-        default: return cmp(a.author_sort, b.author_sort) || (a.year || 0) - (b.year || 0);
+        default: return cmp(a._sa, b._sa) || (a.year || 0) - (b.year || 0);
       }
     });
   }
@@ -459,13 +470,22 @@
   function scrollToHashEntry() {
     var hash = location.hash.replace(/^#/, "");
     if (!hash) return;
+    // Browsers percent-encode non-ASCII characters in the URL, so a link
+    // to #entry-plants-śvadaṃṣṭrā arrives as #entry-plants-%C5%9Bva...
+    try { hash = decodeURIComponent(hash).normalize("NFC"); } catch (e) { /* keep as is */ }
     var id = hash.replace(/^entry-/, "");
     var idx = state.filtered.findIndex(function (r) { return r.id === id; });
     if (idx === -1) {
       // Not in the current filtered set (e.g. filters hide it) -- clear
       // filters/search so a shared link always resolves.
       var rec = state.all.filter(function (r) { return r.id === id; })[0];
-      if (!rec) return;
+      if (!rec) {
+        // A link to an entry that lives on the other search page (e.g. an
+        // old link to a plant on the bibliography page): send it there.
+        var other = els.app.dataset.otherPage, pat = els.app.dataset.otherIds;
+        if (other && pat && new RegExp(pat).test(id)) location.replace(other + "#entry-" + id);
+        return;
+      }
       $("#controls").reset();
       readStateFromForm();
       state.query = ""; els.q.value = "";

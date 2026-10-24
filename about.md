@@ -19,7 +19,9 @@ science in South Asia.
   of Patañjali's *Mahābhāṣya*), edited directly with a reference manager
   (Zotero/Better BibTeX) or a text editor.
 - A Python script (`scripts/build_bibliography.py`) converts those files
-  into a single JSON index (`assets/data/bibliography.json`).
+  into two JSON indexes: `assets/data/bibliography.json` for the
+  Bibliography page and `assets/data/glossary.json` for the Materia
+  medica page.
 - A plain JavaScript front end (`assets/js/app.js`) loads that JSON and
   does all searching, filtering, and sorting in the browser — there is no
   server or database involved, so the whole site is a handful of static
@@ -28,16 +30,16 @@ science in South Asia.
   to `main`, so the site always reflects the current state of the `.bib`
   files.
 
-## Glossaries of plants, animals and minerals
+## Materia medica: plants, animals and minerals
 
-The index also includes three glossary databases from the repository —
-`plants.bib`, `animals.bib` and `minerals.bib` — which record Sanskrit
-names of flora, fauna and minerals for use with LaTeX's
-`glossaries-extra` package. Each is shown as English name, Sanskrit name
-and description. Citations inside a description link to the cited work
-in the bibliography (where it is present there), and cross-references
-link to the other glossary entry. Use the *Collection* or *Type* filter
-to see only these.
+The [Materia medica]({{ '/materia-medica/' | relative_url }}) page
+searches three glossary databases from the repository — `plants.bib`,
+`animals.bib` and `minerals.bib` — which record Sanskrit names of flora,
+fauna and minerals for use with LaTeX's `glossaries-extra` package. Each
+entry is shown as English name, Sanskrit name and description.
+Citations inside a description link to the cited work on the
+Bibliography page, and cross-references link to the other glossary
+entry.
 
 ## Searching
 

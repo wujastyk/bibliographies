@@ -1,8 +1,9 @@
 ---
 layout: default
-title: Search
+title: Bibliography
 ---
-<section class="app" id="app" data-loading="true">
+<section class="app" id="app" data-loading="true" data-source="bibliography.json"
+         data-other-page="{{ '/materia-medica/' | relative_url }}" data-other-ids="^(plants|animals|minerals)-">
 
   <div class="app__intro">
     <p>{{ site.description }} <span id="entry-count-blurb"></span></p>

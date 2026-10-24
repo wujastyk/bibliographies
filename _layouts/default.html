@@ -16,7 +16,8 @@
   <div class="site-header__inner">
     <a class="site-header__title" href="{{ '/' | relative_url }}">Bibliographies and indexes of materia medica</a>
     <nav class="site-header__nav">
-      <a href="{{ '/' | relative_url }}"{% if page.url == '/' %} class="is-active"{% endif %}>Search</a>
+      <a href="{{ '/' | relative_url }}"{% if page.url == '/' %} class="is-active"{% endif %}>Bibliography</a>
+      <a href="{{ '/materia-medica/' | relative_url }}"{% if page.url == '/materia-medica/' %} class="is-active"{% endif %}>Materia medica</a>
       <a href="{{ '/about/' | relative_url }}"{% if page.url == '/about/' %} class="is-active"{% endif %}>About</a>
       <!-- <a href="https://github.com/wujastyk/bibliographies" target="_blank" rel="noopener">Source .bib files</a> -->
     </nav>
@@ -26,7 +27,7 @@
 {{ content }}
 </main>
 <footer class="site-footer">
-  <p>Bibliography data maintained by Dominik Wujastyk in <a href="https://github.com/wujastyk/bibliographies" target="_blank" rel="noopener">BibLaTeX</a>. This index is generated automatically from that data &mdash; see the <a href="{{ '/about/' | relative_url }}">About</a> page.</p>
+  <p>Bibliography and glossary data maintained by Dominik Wujastyk in <a href="https://github.com/wujastyk/bibliographies" target="_blank" rel="noopener">BibLaTeX</a>. These indexes are generated automatically from that data &mdash; see the <a href="{{ '/about/' | relative_url }}">About</a> page.</p>
 </footer>
 </body>
 </html>

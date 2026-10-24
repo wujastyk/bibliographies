@@ -40,9 +40,10 @@ VOLCITE = {"volcite", "pvolcite", "tvolcite", "avolcite"}
 
 
 class Renderer:
-    def __init__(self, bib_by_id, gloss_ids):
+    def __init__(self, bib_by_id, gloss_ids, bib_page):
         self.bib = bib_by_id          # bibliography id -> record
         self.gloss = gloss_ids        # glossary key -> record id
+        self.bib_page = bib_page      # relative URL of the bibliography page
 
     # -- argument parsing ------------------------------------------------
     @staticmethod
@@ -104,7 +105,8 @@ class Renderer:
         inner = f"{label}{loc}"
         if rec:
             title = html.escape(rec.get("citation", ""), quote=True)
-            inner = f'<a class="cite" href="#entry-{html.escape(key, quote=True)}" title="{title}">{inner}</a>'
+            href = f"{self.bib_page}#entry-{key}"
+            inner = f'<a class="cite" href="{html.escape(href, quote=True)}" title="{title}">{inner}</a>'
         return pre_html + inner
 
     def gls_link(self, key):
@@ -227,7 +229,9 @@ def strip_tags(h):
     return html.unescape(re.sub(r"<[^>]+>", "", h))
 
 
-def build_glossaries(root, sources, bib_records):
+def build_glossaries(root, sources, bib_records, bib_page="../"):
+    """bib_page: URL of the bibliography search page, relative to the
+    glossary page (which is served one level down, at /materia-medica/)."""
     bib_by_id = {r["id"]: r for r in bib_records}
     loaded = []
     gloss_ids = {}
@@ -242,7 +246,7 @@ def build_glossaries(root, sources, bib_records):
             gloss_ids.setdefault(key, f"{tag}-{key}")
         loaded.append((tag, label, type_label, entries))
 
-    r = Renderer(bib_by_id, gloss_ids)
+    r = Renderer(bib_by_id, gloss_ids, bib_page)
     records, stats = [], []
     for tag, label, type_label, entries in loaded:
         for e in entries:

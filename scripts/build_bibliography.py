@@ -475,15 +475,19 @@ def main():
     from glossary import build_glossaries
     for r in records:
         r["collection_label"] = next((lbl for f, t, lbl in SOURCES if t == r["collection"]), r["collection"])
+    # The glossaries are searched on their own page (materia-medica.html),
+    # but their citations are resolved against the bibliography records
+    # and link across to the bibliography page.
     gl_records, gl_stats = build_glossaries(ROOT, GLOSSARIES, records)
-    records += gl_records
-    stats += gl_stats
-    out_path = ROOT / "assets" / "data" / "bibliography.json"
-    out_path.parent.mkdir(parents=True, exist_ok=True)
-    out_path.write_text(json.dumps(records, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
-    print(f"Wrote {len(records)} entries to {out_path}")
-    for label, count in stats:
-        print(f"  - {label}: {count}")
+    data_dir = ROOT / "assets" / "data"
+    data_dir.mkdir(parents=True, exist_ok=True)
+    for name, recs, st in (("bibliography.json", records, stats),
+                           ("glossary.json", gl_records, gl_stats)):
+        out_path = data_dir / name
+        out_path.write_text(json.dumps(recs, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+        print(f"Wrote {len(recs)} entries to {out_path}")
+        for label, count in st:
+            print(f"  - {label}: {count}")
 
 
 if __name__ == "__main__":
