@@ -315,3 +315,4 @@ find-duplicates/finddupls.pl
 find-duplicates/finddupls.pl~
 find-duplicates/sorted_citation-keys.txt
 find-duplicates/sorted_titles.txt
+assets/data/*.json
